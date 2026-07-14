@@ -1,65 +1,50 @@
-# Pulse AC Discord bot (multi-tenant)
+# Pulse — Documentation
 
-One bot, many games. Each Discord server registers its **own** Roblox game
-with `/setup`; every command then operates on that server's game. The bot
-owner (`OWNER_DISCORD_ID`) bypasses all permission checks and can see every
-registered game.
+Pulse is an anti-cheat system for Roblox games, with a Discord bot for
+reviewing what it catches. This repository holds our public documents and
+customer setup guides.
 
-## Commands
+## Documents
 
-### For every customer server
+- [Privacy Policy](PRIVACY.md)
+- [Terms of Service](TERMS.md)
 
-| Command | Who can use it | What it does |
-| --- | --- | --- |
-| `/setup universe_id api_key [admin_role] [datastore]` | Manage Server | Register (or replace) this server's game. Validates the key against Open Cloud before saving. |
-| `/unregister` | Manage Server | Remove the registration and stored API key |
-| `/status` | anyone | Show this server's registered game (key masked) |
-| `/logs user:<id or name> [count]` | admin role* | A Roblox user's anti-cheat history |
-| `/recent` | admin role* | Last ~50 events across all players |
-| `/stats` | admin role* | Total bans / kicks / log hints / unbans |
-| `/baninfo user:<id or name>` | admin role* | Current Roblox ban status |
-| `/unban user:<id or name>` | admin role* | Lift the Roblox ban via Open Cloud |
+## What Pulse does
 
-\* the role passed to `/setup`; if none was set, anyone with Manage Server.
+Pulse runs inside your Roblox game and detects, punishes, and logs cheaters:
+speed, fly, noclip and teleport enforcement on the server, plus client tamper
+detection. Every ban, kick, and detection is logged so your staff can review it
+from Discord.
 
-### Owner only
+## The Discord bot
+
+Once Pulse is installed in your game, link it to your Discord server and your
+moderation team can use:
 
 | Command | What it does |
 | --- | --- |
-| `/tenants` | List every registered game: name, universe, guild, who added it, when |
+| `/setup` | Link your Roblox game to your Discord server (server managers only) |
+| `/status` | Show which game is linked |
+| `/logs user` | A player's full anti-cheat history |
+| `/recent` | The latest detections across your game |
+| `/stats` | Total bans, kicks and detections |
+| `/baninfo user` | Whether a player is currently banned, and why |
+| `/unban user` | Lift a ban |
 
-## What a customer needs to do (put this in your product docs)
+Commands accept a Roblox username or user id.
 
-1. Install the anti-cheat scripts in their game (`ServerAntiCheat`, `ACAuthority`,
-   `ACLog`, the two client copies).
-2. Create an Open Cloud API key for **their** game at
-   create.roblox.com → Open Cloud → API Keys with:
+## Linking your game (customers)
+
+1. Install the Pulse scripts in your game (provided with your purchase).
+2. Create a Roblox Open Cloud API key at create.roblox.com → Open Cloud →
+   API Keys, restricted to your experience, with:
    - `universe-datastores.objects:read`
-   - `user-restrictions` read + write
-   - restricted to their experience (tell them to enable "Restrict by Experience")
-3. Invite your bot, then run `/setup universe_id:<id> api_key:<key>` in their server.
+   - `user-restrictions` read and write
+3. In your Discord server, run `/setup` with your game's universe id and the
+   API key. The key is only visible to you and is stored solely to serve your
+   server's commands — see the [Privacy Policy](PRIVACY.md).
 
-The `/setup` response is ephemeral (only the person running it sees the key).
+## Support
 
-## Running the bot (you)
-
-1. Copy `.env.example` → `.env`, fill in `DISCORD_TOKEN` and `OWNER_DISCORD_ID`
-   (your Discord user id). The `UNIVERSE_ID`/`ROBLOX_API_KEY` block is an
-   optional default game used by servers that never ran `/setup` — handy for
-   your own testing server.
-2. Invite link scopes: `bot` + `applications.commands`. No privileged intents.
-3. `pip install -r requirements.txt` then `python bot.py`.
-
-Slash commands appear instantly in `GUILD_ID`'s server and take up to an hour
-to propagate globally to customer servers the first time.
-
-## Security notes
-
-- Customer API keys are stored in `tenants.db` (SQLite) next to the bot —
-  **treat that file like a password vault**: don't commit it, don't share it,
-  back it up privately. Anyone with the file can manage bans in every
-  registered game.
-- `.env` holds your own secrets; only `.env.example` is safe to share.
-- Real-time push per game: each customer can set `WebhookUrl` in their
-  `ACLog.lua` to their own Discord webhook (via a proxy — Discord blocks
-  direct Roblox calls). The bot itself is pull-based and needs nothing extra.
+Discord: contact the bot owner listed on the bot's profile.
+Email: pulseproductshq@gmail.com
